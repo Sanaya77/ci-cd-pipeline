@@ -17,15 +17,15 @@ pipeline {
 
         stage('Build Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t ${IMAGE_NAME} .'
             }
         }
 
         stage('Remove Old Container') {
             steps {
                 sh '''
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
                 '''
             }
         }
@@ -33,12 +33,21 @@ pipeline {
         stage('Run Container') {
             steps {
                 sh '''
-                docker run -d \
-                --name $CONTAINER_NAME \
-                -p $PORT:$PORT \
-                $IMAGE_NAME
+                    docker run -d \
+                    --name ${CONTAINER_NAME} \
+                    -p ${PORT}:${PORT} \
+                    ${IMAGE_NAME}
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ App deployed at http://localhost:${PORT}"
+        }
+        failure {
+            echo "❌ Pipeline failed. Check logs above."
         }
     }
 }
